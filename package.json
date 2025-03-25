@@ -16,6 +16,9 @@
   "dependencies": {
   "bcryptjs": "^2.4.3"
   },
+  "dependencies": {
+  "express": "^4.18.2"
+  },
   "devDependencies": {
     "nodemon": "^3.0.0"
   },
