@@ -6,28 +6,22 @@ const { Pool } = require('pg');  // Для PostgreSQL
 require('dotenv').config();
 
 const app = express();
-const express = require('express');
-const app = express();
-
-app.get("/", (req, res) => {
-  res.send("Сервер работает!");
-});
-
-app.get("/api/posts", (req, res) => {
-  res.json({ message: "Все посты" });
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 app.use(cors());
 app.use(express.json());
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+});
+
+// Обработчик для корневого пути "/"
+app.get("/", (req, res) => {
+  res.send("Сервер работает!");
+});
+
+// Пример API: получаем все посты
+app.get("/api/posts", (req, res) => {
+  res.json({ message: "Все посты" });
 });
 
 // Регистрация пользователя
@@ -38,8 +32,7 @@ app.post('/api/register', async (req, res) => {
     {
         await pool.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)", [username, email, hashedPassword]);
         res.json({ message: "Пользователь зарегистрирован!" });
-    } 
-    catch (err) 
+    } catch (err) 
     {
         res.status(500).json({ error: err.message });
     }
@@ -49,26 +42,31 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-    if (user.rows.length > 0 && await bcrypt.compare(password, user.rows[0].password)) {
+    if (user.rows.length > 0 && await bcrypt.compare(password, user.rows[0].password)) 
+    {
         const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET);
         res.json({ token });
-    } else {
+    } 
+    else 
+    {
         res.status(401).json({ error: "Неверный логин или пароль" });
     }
 });
 
+// Получение всех веток
 app.get('/api/threads', async (req, res) => {
     const threads = await pool.query("SELECT threads.*, users.username FROM threads JOIN users ON threads.user_id = users.id ORDER BY created_at DESC");
     res.json(threads.rows);
 });
 
+// Создание ветки
 app.post('/api/threads', async (req, res) => {
     const { title, content, user_id } = req.body;
     await pool.query("INSERT INTO threads (title, content, user_id) VALUES ($1, $2, $3)", [title, content, user_id]);
     res.json({ message: "Ветка создана" });
 });
 
-// Получение комментариев к ветке
+// Получение комментариев по ветке
 app.get('/api/comments/:thread_id', async (req, res) => {
     const { thread_id } = req.params;
     const comments = await pool.query("SELECT comments.*, users.username FROM comments JOIN users ON comments.user_id = users.id WHERE thread_id = $1 ORDER BY created_at", [thread_id]);
@@ -82,4 +80,8 @@ app.post('/api/comments', async (req, res) => {
     res.json({ message: "Комментарий добавлен" });
 });
 
-app.listen(5000, () => console.log("Сервер запущен на порту 5000"));
+// Запуск сервера
+const PORT = process.env.PORT || 3000; // Используем порт, заданный в переменной окружения или 3000
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
