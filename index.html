@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форум</title>
+</head>
+<body>
+    <h1>Форум</h1>
+    <div id="threads"></div>
+
+    <script>
+        async function loadThreads() 
+        {
+            let res = await fetch('/api/threads');
+            let threads = await res.json();
+            document.getElementById('threads').innerHTML = threads.map(t => `
+                <div>
+                    <h3>${t.title} (от ${t.username})</h3>
+                    <p>${t.content}</p>
+                    <button onclick="loadComments(${t.id})">Комментарии</button>
+                    <div id="comments-${t.id}"></div>
+                </div>
+            `).join('');
+        }
+
+        async function loadComments(threadId) 
+        {
+            let res = await fetch(`/api/comments/${threadId}`);
+            let comments = await res.json();
+            document.getElementById(`comments-${threadId}`).innerHTML = comments.map(c => `
+                <p>${c.username}: ${c.text}</p>
+            `).join('');
+        }
+
+        loadThreads();
+    </script>
+</body>
+</html>
