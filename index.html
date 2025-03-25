@@ -12,7 +12,7 @@
     <script>
         async function loadThreads() 
         {
-            let res = await fetch('/api/threads');
+            let res = await fetch('https://wtforum.onrender.com/api/threads');
             let threads = await res.json();
             document.getElementById('threads').innerHTML = threads.map(t => `
                 <div>
