@@ -9,12 +9,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const { Pool } = require('pg');
+require('dotenv').config();
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false  // SSL-соединение
 });
 
-// Обработчик для корневого пути "/"
+pool.query('SELECT * FROM users')
+  .then(res => console.log(res.rows))
+  .catch(err => console.error('Ошибка подключения к базе данных:', err));
+
 app.get("/", (req, res) => {
   res.send("Сервер работает!");
 });
