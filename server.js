@@ -6,6 +6,22 @@ const { Pool } = require('pg');  // Для PostgreSQL
 require('dotenv').config();
 
 const app = express();
+const express = require('express');
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Сервер работает!");
+});
+
+app.get("/api/posts", (req, res) => {
+  res.json({ message: "Все посты" });
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 app.use(cors());
 app.use(express.json());
 
