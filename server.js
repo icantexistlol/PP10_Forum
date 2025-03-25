@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 const pool = new Pool({
-    connectionString: process.env.postgresql://forumdb_4e45_user:cHuBLFyR29taGMpksKrAZ8rzd9hFN7Vj@dpg-cvh5s3pu0jms73bi8omg-a/forumdb_4e45,
+    connectionString: process.env.DATABASE_URL;
     ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false
 });
 
